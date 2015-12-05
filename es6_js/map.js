@@ -20,11 +20,11 @@ class ukMap {
 
 
 (() => {
-    let q = new queue();
-    q.defer('data/a_road_topo.json',d3.json)
-        .defer('data/M_road_topo.json',d3.json)
-        .defer('data/uk-traffic-counts-2000.csv',d3.csv)
-        .defer('data//uk-traffic-counts-2001.json',d3.json)
+    console.log("starting")
+    queue().defer(d3.json, 'data/a_road_topo.json')
+        .defer(d3.json, 'data/M_road_topo.json')
+        .defer(d3.csv, 'data/uk-traffic-counts-2000.csv')
+        .defer(d3.csv, 'data//uk-traffic-counts-2001.csv')
         .await((error, aRoad, bRoad, uk_2000_traffic, uk_2001_traffic) => {
             console.log("all done")
         })
