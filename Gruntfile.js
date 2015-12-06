@@ -31,9 +31,6 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-babel');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-
     grunt.registerTask('default', ['babel', 'watch']);
 }
 
