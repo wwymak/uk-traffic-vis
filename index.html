@@ -8,9 +8,22 @@
     <script src="vendor/d3.min.js"></script>
     <script src="vendor/topojson.js"></script>
     <script src="vendor/queue.min.js"></script>
+
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        .map-container svg{
+            background-color: #00003f;
+        }
+
+        .roadPath {
+            cursor: pointer;
+        }
+    </style>
+
 </head>
 <body>
-<div id="ukMap"></div>
+<div id="ukMap" class="map-container"></div>
 <script src="js/map.js"></script>
 </body>
 </html>
