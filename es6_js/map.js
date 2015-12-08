@@ -37,6 +37,8 @@ class ukMap {
 (() => {
     var mapSVG = initMap();
 
+    windowResizeHandler();
+
     var projection = d3.geo.albers()
         .center([12, 57])
         .rotate([10, 0])
@@ -46,12 +48,13 @@ class ukMap {
         path = d3.geo.path()
             .projection(projection);
 
-    var dataMap = new Map()
+    var dataMap = new Map();
+
 
     queue().defer(d3.json, 'data/a_road_topo.json')
         .defer(d3.json, 'data/M_road_topo.json')
         .defer(d3.csv, 'data/uk-traffic-2000.csv')
-        .defer(d3.csv, 'data//uk-traffic-counts-2001.csv')
+        .defer(d3.csv, 'data/uk-traffic-2001.csv')
         .await((error, aRoad, MRoad, uk_2000_traffic, uk_2001_traffic) => {
             console.log("all done");
 
@@ -68,7 +71,6 @@ class ukMap {
                     motors: +d.AllMotorVehicles
                 })
             });
-
 
             console.log(maxVal, uk_2000_traffic)
 
@@ -109,15 +111,27 @@ class ukMap {
         });
 
     function initMap(){
-        var width = 700,
-            height = 900;
+        var width = 0.8 * window.innerHeight,
+            height = window.innerHeight;
 
         return d3.select("#ukMap").append("svg")
             .attr("width", width)
             .attr("height", height)
             .attr("viewBox", "0 0 400 800")
             .attr("preserveAspectRatio", "xMinYMin meet");
+    }
 
+    function windowResizeHandler(){
+        var resizeTimer;
+        d3.select(window).on("resize", () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() =>{
+                var width = 0.8 * window.innerHeight,
+                    height = window.innerHeight;
+
+                mapSVG.attr("width", width).attr("height", height);
+            }, 200)
+        });
     }
 
 })();
