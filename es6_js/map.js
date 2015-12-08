@@ -111,8 +111,9 @@ class ukMap {
         });
 
     function initMap(){
-        var width = 0.8 * window.innerHeight,
-            height = window.innerHeight;
+        var dimen = d3.min([window.innerHeight, document.getElementById("ukMap").offsetWidth])
+        var width = 0.8 * dimen,
+            height = dimen;
 
         return d3.select("#ukMap").append("svg")
             .attr("width", width)
