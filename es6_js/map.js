@@ -62,6 +62,7 @@ class ukMap {
                 return d.AllMotorVehicles
             });
 
+            //quantisation scale for setting thickness of roads
             var quantize = d3.scale.quantize().domain([0, maxVal]).range(d3.range(0.2,2.5,0.15));
 
             uk_2000_traffic.map((d) => {
@@ -106,12 +107,35 @@ class ukMap {
                 var roadNumber = d.properties.roadNumber;
                 var valObj = dataMap.get(roadNumber) || {};
                 console.log(roadNumber, valObj)
-            })
+            });
+
+
+            /**
+             * Update the roadwidth when toggling between viewing the map for
+             * @param vehicleType "motors" or "cycles" as per above
+             */
+            var updateRoadWidth = function(vehicleType = "motors"){
+                console.log("click")
+                d3.selectAll(".roadPath").style("stroke-width", (d, i) => {
+                    var roadNumber = d.properties.roadNumber;
+                    var valObj = dataMap.get(roadNumber) || {};
+
+                    return quantize(valObj[vehicleType] || 1);
+                })
+            }
+
+            var  setBtnClickHandler = function(){
+                d3.select("#motorDataSelect").on("click", updateRoadWidth);
+                d3.select("#cycleDataSelect").on("click", () =>{updateRoadWidth("cycles")});
+            }
+
+            setBtnClickHandler();
+
 
         });
 
     function initMap(){
-        var dimen = d3.min([window.innerHeight, document.getElementById("ukMap").offsetWidth])
+        var dimen = d3.min([window.innerHeight, window.innerWidth])
         var width = 0.8 * dimen,
             height = dimen;
 
@@ -134,5 +158,9 @@ class ukMap {
             }, 200)
         });
     }
+
+
+
+
 
 })();
