@@ -32,7 +32,38 @@ class ukMap {
     }
 }
 
+/**
+ * Class to hold the traffic vol data for a year, plus some basic ops
+ */
+class mapData {
+    constructor(trafficData, {
 
+        } = {}){
+        this.trafficData = trafficData;
+        this.quantize = d3.scale.quantize().range(d3.range(0.5,2.5,0.15));
+    }
+
+    /**
+     *
+     * @param categoryName -- one of "PedalCycles", "Motorcycles",
+     * "CarsTaxis",	"bus", "AllHGVs", "AllMotorVehicles"
+     */
+    maxValOfCategory(categoryName){
+        return  d3.max(this.trafficData, (d) => {
+            return d[categoryName];
+        });
+    }
+
+    minValOfCategory(categoryName){
+        return  d3.min(this.trafficData, (d) => {
+            return d[categoryName];
+        });
+    }
+
+    quantizeScale(categoryName){
+        return this.quantize.domain([this.minValOfCategory(categoryName), this.maxValOfCategory(categoryName)])
+    }
+}
 
 (() => {
     var mapSVG = initMap();
@@ -43,12 +74,13 @@ class ukMap {
         .center([12, 57])
         .rotate([10, 0])
         .parallels([50, 60])
-        .scale(3500),
+        .scale(4300),
 
         path = d3.geo.path()
             .projection(projection);
 
-    var dataMap = new Map();
+    var dataMap = new Map(),
+        mapProperties, roadScale;
 
 
     queue().defer(d3.json, 'data/a_road_topo.json')
@@ -57,6 +89,9 @@ class ukMap {
         .defer(d3.csv, 'data/uk-traffic-2001.csv')
         .await((error, aRoad, MRoad, uk_2000_traffic, uk_2001_traffic) => {
             console.log("all done");
+
+            mapProperties = new mapData(uk_2000_traffic)
+            roadScale = mapProperties.quantizeScale("AllMotorVehicles")
 
             var maxVal = d3.max(uk_2000_traffic, (d) => {
                 return d.AllMotorVehicles
@@ -80,7 +115,16 @@ class ukMap {
                 topojson.feature(MRoad,MRoad.objects.M_road_trimmed)
             ];
 
-            var roads = mapSVG.selectAll("g.road").data(geoData).enter().append("g").attr("class", "road");
+            var roads = mapSVG.selectAll("g.road").data(geoData)
+                .enter().append("g")
+                .attr("class", "road")
+                .attr("id", (d, i) => {
+                    if(i == 0){
+                        return "a-road"
+                    } else if (i == 1){
+                        return "m-road"
+                    }
+                });
 
             roads.selectAll("g")
                 .data((d) => {
@@ -102,7 +146,7 @@ class ukMap {
                     var roadNumber = d.properties.roadNumber;
                     var valObj = dataMap.get(roadNumber) || {};
 
-                    return quantize(valObj.motors || 1);
+                    return roadScale(valObj.motors || 0.2);
                 }).on("mouseover", (d,i) => {
                 var roadNumber = d.properties.roadNumber;
                 var valObj = dataMap.get(roadNumber) || {};
